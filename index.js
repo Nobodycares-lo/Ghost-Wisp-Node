@@ -1,30 +1,25 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const http = require('node:http');
-const { createBareServer } = require('@tomphttp/bare-server-node');
+import http from 'node:http';
+import wisp from "wisp-server-node";
 
 const httpServer = http.createServer();
 
-const bareServer = createBareServer('/');
 
 httpServer.on('request', (req, res) => {
-	if (bareServer.shouldRoute(req)) {
-		bareServer.routeRequest(req, res);
-	} else {
-		res.writeHead(400);
-		res.end('Not found.');
-	}
+	res.writeHead(400);
+	res.end('Not found.');
 });
 
 httpServer.on('upgrade', (req, socket, head) => {
-	if (bareServer.shouldRoute(req)) {
-		bareServer.routeUpgrade(req, socket, head);
-	} else {
+	if (req.url.endsWith("/wisp/")) {
+    		wisp.routeRequest(req, socket, head);
+  	} else {
 		socket.end();
 	}
 });
 
 httpServer.on('listening', () => {
-	console.log('Andromeda Bare server online');
+	console.log('Night Wisp server online');
 });
 
 httpServer.listen({
